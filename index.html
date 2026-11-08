@@ -1,1 +1,416 @@
-# christmas-tree-counter
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>クリスマスツリーカウンター</title>
+<style>
+:root {
+  box-sizing: border-box;
+  --bg: #eef1f5;
+  --line: #cdd5e2;
+}
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  font-family: "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 14px;
+}
+
+.app {
+  container-type: size;
+  aspect-ratio: 3/5;
+  height: min(calc(100dvh - 24px), calc((100vw - 28px)*5/3));
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(ellipse at 50% 70%, #1c2a63 0%, #0b1030 72%);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  color: #f4eef0;
+}
+
+.frame {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3cqw 3cqw 0;
+}
+
+.head {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.head h1 {
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+  font-size: 4.6cqw;
+  margin: 0;
+}
+
+.count {
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+  font-size: 10cqw;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.count small {
+  font-size: 5cqw;
+  color: #a3a9c0;
+  font-weight: 400;
+}
+
+.bar {
+  height: 1.6cqw;
+  width: 100%;
+  border-radius: 1cqw;
+  background: #2a3360;
+  overflow: hidden;
+  margin-top: 1.5cqw;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, #3f9d5a, #f2c14e, #d9383a);
+  transition: width .3s;
+}
+
+.frame svg {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.msg {
+  min-height: 8cqw;
+  text-align: center;
+  font-size: 5cqw;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+.btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.4cqw;
+  padding: 2cqw 3cqw 3cqw;
+  background: rgba(255,255,255,.05);
+}
+
+button {
+  font: inherit;
+  font-size: 2.8cqw;
+  line-height: 1.15;
+  font-weight: 700;
+  height: 8cqw;
+  padding: 0 1cqw;
+  border-radius: 2cqw;
+  border: .4cqw solid #f4eef0;
+  background: #f4eef0;
+  color: #0b1030;
+  cursor: pointer;
+}
+
+button.alt {
+  background: transparent;
+  color: #f4eef0;
+  border-color: #4a5490;
+}
+
+button.wide {
+  grid-column: span 2;
+}
+
+button:focus-visible {
+  outline: 3px solid #f2c14e;
+  outline-offset: 2px;
+}
+
+button:active {
+  transform: scale(.98);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1325;
+    --line: #2a3360;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <div class="frame" id="frame">
+
+    <div class="head">
+      <h1>🎄 クリスマスツリー</h1>
+      <div class="count">
+        <span id="n">0</span>
+        <small> / <span id="max">300</span></small>
+      </div>
+    </div>
+
+    <div class="bar"><i id="bar"></i></div>
+
+    <svg viewBox="0 0 400 560" role="img"
+         aria-label="オーナメントが点いていくクリスマスツリー">
+
+      <defs>
+        <g id="o0">
+          <circle cy="1.5" r="7.5"/>
+          <rect x="-2.5" y="-9.5" width="5" height="3.5"/>
+        </g>
+        <polygon id="o1" points="0,-10 2.9,-3.4 10,-3.1 4.4,1.4 6.2,8.5 0,4.6 -6.2,8.5 -4.4,1.4 -10,-3.1 -2.9,-3.4"/>
+        <path id="o2" d="M0,8 C-12,-1 -7,-9 0,-4 C7,-9 12,-1 0,8 Z"/>
+        <path id="o3" d="M0,-9 C-5,-9 -6,-3 -6,2 L-9,6 L9,6 L6,2 C6,-3 5,-9 0,-9 Z M-2,7 a2,2 0 1 0 4,0 Z"/>
+        <path id="o4" fill-rule="evenodd" d="M-8,-3H8V8H-8Z M-1.2,-3H1.2V8H-1.2Z M0,-3 C-6,-9 -9,-3 0,-3 Z M0,-3 C6,-9 9,-3 0,-3 Z"/>
+        <path id="o5" d="M0,-9 L7,0 H3 L9,7 H-9 L-3,0 H-7 Z"/>
+        <path id="o6" d="M-3,9 V-3 A5.5,5.5 0 0 1 8,-3 H4.5 A2,2 0 0 0 0.5,-3 V9 Z"/>
+        <path id="o7" d="M0,-10 L2,-2 L10,0 L2,2 L0,10 L-2,2 L-10,0 L-2,-2 Z"/>
+      </defs>
+
+      <rect x="182" y="500" width="36" height="46" fill="#6b4a33"/>
+      <path d="M200 40 L365 500 L35 500 Z"
+            fill="#12482b" stroke="#12482b"
+            stroke-width="12" stroke-linejoin="round"/>
+
+      <g id="lights"></g>
+
+      <polygon id="star"
+        points="0,-10 2.9,-3.4 10,-3.1 4.4,1.4 6.2,8.5 0,4.6 -6.2,8.5 -4.4,1.4 -10,-3.1 -2.9,-3.4"
+        transform="translate(200 24) scale(2.2)"
+        fill="#4a4f66"/>
+    </svg>
+
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div class="btns">
+    <button data-v="1">+1 おはようコメント</button>
+    <button data-v="2">+2 ハートミーのお礼</button>
+    <button data-v="-1">−1 いいねタップ1000</button>
+    <button data-v="5">+5 「ギフトスター」のお礼</button>
+    <button data-v="50">+50 「サンタさんの星」のお礼</button>
+    <button data-v="-100">−100 「冬のプレゼント」のお礼</button>
+    <button data-v="180">+180 「雪だるま」のお礼</button>
+    <button id="br" class="alt">リセット</button>
+    <button id="ball" class="wide">全点灯＆点滅 「メリークリスマス！」のお礼</button>
+    <button id="bzero" class="wide">全消灯 「サンタさんのお家」のお礼</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  var N = 300, count = 0, blink = false, timer = null;
+  var KEY = "xmas-count";
+
+  var palette = [
+    "#ffd34e", "#ff4a4a", "#ffffff",
+    "#5ec8ff", "#7dff8a"
+  ];
+
+  var seed = 11;
+
+  function rnd() {
+    seed = (seed * 16807) % 2147483647;
+    return seed / 2147483647;
+  }
+
+  var pts = [], s = 30;
+
+  while (true) {
+    pts = [];
+    var row = 0;
+
+    for (var y = 72; y <= 490; y += s * 0.86) {
+      var half = (y - 40) * 0.3587 - 9;
+      var off = (row % 2) * s / 2;
+
+      for (var x = 200 - half + off;
+           x <= 200 + half; x += s) {
+        pts.push([x, y]);
+      }
+      row++;
+    }
+
+    if (pts.length >= N || s < 5) break;
+    s -= 0.2;
+  }
+
+  for (var j = pts.length - 1; j > 0; j--) {
+    var k = Math.floor(rnd() * (j + 1));
+    var t = pts[j];
+    pts[j] = pts[k];
+    pts[k] = t;
+  }
+
+  pts = pts.slice(0, N);
+
+  var order = [];
+
+  for (var i = 0; i < N; i++) order.push(i);
+
+  for (var j = N - 1; j > 0; j--) {
+    var k = Math.floor(rnd() * (j + 1));
+    var t = order[j];
+    order[j] = order[k];
+    order[k] = t;
+  }
+
+  var rank = [];
+
+  for (var r = 0; r < N; r++) {
+    rank[order[r]] = r;
+  }
+
+  var NS = "http://www.w3.org/2000/svg";
+  var g = document.getElementById("lights");
+  var dots = [];
+
+  for (var i = 0; i < N; i++) {
+    var c = document.createElementNS(NS, "use");
+
+    c.setAttribute("href", "#o" + (i % 8));
+
+    c.setAttribute(
+      "transform",
+      "translate(" + pts[i][0].toFixed(1) + " " +
+      pts[i][1].toFixed(1) + ") rotate(" +
+      Math.round((rnd() - .5) * 40) + ") scale(" +
+      (s * .05).toFixed(3) + ")"
+    );
+
+    c.setAttribute("fill", "#1d6a40");
+    c.dataset.c = palette[i % palette.length];
+
+    g.appendChild(c);
+    dots.push(c);
+  }
+
+  try {
+    var sv = parseInt(localStorage.getItem(KEY), 10);
+    if (sv >= 0 && sv <= N) count = sv;
+  } catch(err) {}
+
+  function tick() {
+    for (var i = 0; i < N; i++) {
+      if (Math.random() < .45) {
+        dots[i].style.opacity =
+          dots[i].style.opacity === "0.12" ? "1" : "0.12";
+      }
+    }
+  }
+
+  function setBlink(on) {
+    if (on && !timer) {
+      timer = setInterval(tick, 260);
+    }
+
+    if (!on && timer) {
+      clearInterval(timer);
+      timer = null;
+
+      for (var i = 0; i < N; i++) {
+        dots[i].style.opacity = "";
+      }
+    }
+  }
+
+  function render() {
+    document.getElementById("n").textContent = count;
+
+    document.getElementById("bar").style.width =
+      (count / N * 100) + "%";
+
+    for (var i = 0; i < N; i++) {
+      dots[i].setAttribute(
+        "fill",
+        rank[i] < count ? dots[i].dataset.c : "#1d6a40"
+      );
+    }
+
+    document.getElementById("star").setAttribute(
+      "fill", count >= N ? "#ffe066" : "#4a4f66"
+    );
+
+    document.getElementById("msg").textContent =
+      count >= N
+        ? "🎄 メリークリスマス！ 🎄"
+        : (count === 0 ? "✨ みんなで点灯させよう！ ✨" : "");
+
+    setBlink(blink && count >= N);
+
+    try {
+      localStorage.setItem(KEY, count);
+    } catch(err) {}
+  }
+
+  function set(v) {
+    count = Math.max(0, Math.min(N, v));
+    if (count < N) blink = false;
+    render();
+  }
+
+  function add(v) {
+    set(count + v);
+  }
+
+  var bs = document.querySelectorAll("button[data-v]");
+
+  for (var b = 0; b < bs.length; b++) {
+    (function(el) {
+      el.onclick = function() {
+        add(parseInt(el.dataset.v, 10));
+      };
+    })(bs[b]);
+  }
+
+  document.getElementById("ball").onclick = function() {
+    blink = true;
+    set(N);
+  };
+
+  document.getElementById("bzero").onclick = function() {
+    set(0);
+  };
+
+  document.getElementById("br").onclick = function() {
+    set(0);
+  };
+
+  var keys = {
+    "1": 1,
+    "2": 2,
+    "5": 5,
+    "0": 50,
+    "8": 180,
+    "4": -100,
+    "Backspace": -1
+  };
+
+  document.addEventListener("keydown", function(ev) {
+    if (keys[ev.key] !== undefined) add(keys[ev.key]);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
